@@ -13,6 +13,7 @@ export default function Home() {
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [displayMode, setDisplayMode] = useState<'percentage' | 'monetary'>('percentage');
+  const [selectedPreset, setSelectedPreset] = useState<string>('');
 
   useEffect(() => {
     fetchAllocations();
@@ -94,30 +95,56 @@ export default function Home() {
               </p>
             </div>
             
-            {/* Display Mode Toggle */}
-            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setDisplayMode('percentage')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  displayMode === 'percentage'
-                    ? 'text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                style={displayMode === 'percentage' ? { backgroundColor: '#fabe36' } : {}}
-              >
-                %
-              </button>
-              <button
-                onClick={() => setDisplayMode('monetary')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  displayMode === 'monetary'
-                    ? 'text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-                style={displayMode === 'monetary' ? { backgroundColor: '#fabe36' } : {}}
-              >
-                HKD
-              </button>
+            {/* Preset and Display Mode Controls */}
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-100 rounded-lg p-1">
+                <select
+                  value={selectedPreset}
+                  onChange={(e) => setSelectedPreset(e.target.value)}
+                  className="px-3 py-1.5 pr-8 text-xs font-medium rounded-md transition-colors
+                           bg-transparent border-none cursor-pointer appearance-none
+                           text-gray-600 hover:text-gray-900
+                           focus:outline-none focus:ring-0"
+                  style={{ 
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 0.25rem center',
+                    backgroundSize: '1.25rem'
+                  }}
+                >
+                  <option value="">Apply Preset...</option>
+                  <option value="equal">📊 Equal</option>
+                  <option value="focusTop2">🎯 Top 2</option>
+                  <option value="focusTop3">🎯 Top 3</option>
+                  <option value="gradual">📈 Gradual</option>
+                  <option value="concentrated">⭐ Concentrated</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setDisplayMode('percentage')}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    displayMode === 'percentage'
+                      ? 'text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  style={displayMode === 'percentage' ? { backgroundColor: '#fabe36' } : {}}
+                >
+                  %
+                </button>
+                <button
+                  onClick={() => setDisplayMode('monetary')}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    displayMode === 'monetary'
+                      ? 'text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  style={displayMode === 'monetary' ? { backgroundColor: '#fabe36' } : {}}
+                >
+                  HKD
+                </button>
+              </div>
             </div>
           </div>
 
@@ -148,6 +175,8 @@ export default function Home() {
               <AllocationSlider
                 allocations={allocations}
                 onUpdate={handleUpdateAllocations}
+                preset={selectedPreset}
+                onPresetApplied={() => setSelectedPreset('')}
                 displayMode={displayMode}
                 monthlyBudget={totalMonthlyBudget}
               />

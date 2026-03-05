@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Allocation } from '@/types/api';
 
 interface AllocationSliderProps {
@@ -8,9 +8,11 @@ interface AllocationSliderProps {
   onUpdate: (updatedAllocations: { charity_id: number; percentage: number }[]) => void;
   displayMode: 'percentage' | 'monetary';
   monthlyBudget: number;
+  preset?: string;
+  onPresetApplied?: () => void;
 }
 
-export default function AllocationSlider({ allocations, onUpdate, displayMode, monthlyBudget }: AllocationSliderProps) {
+export default function AllocationSlider({ allocations, onUpdate, displayMode, monthlyBudget, preset, onPresetApplied }: AllocationSliderProps) {
   const [localAllocations, setLocalAllocations] = useState<
     { id: number; charity_id: number; charityName: string; percentage: number; locked: boolean }[]
   >([]);
@@ -26,6 +28,92 @@ export default function AllocationSlider({ allocations, onUpdate, displayMode, m
     }));
     setLocalAllocations(mapped);
   }, [allocations]);
+
+  const applyPreset = useCallback((presetName: string) => {
+    const lockedAllocations = localAllocations.filter((a) => a.locked);
+    const unlockedAllocations = localAllocations.filter((a) => !a.locked);
+    
+    if (unlockedAllocations.length === 0) return;
+    
+    const lockedTotal = lockedAllocations.reduce((sum, a) => sum + a.percentage, 0);
+    const remainingForUnlocked = 100 - lockedTotal;
+    
+    // Define preset distribution patterns as actual percentages (will be scaled to remainingForUnlocked)
+    let targetPercentages: number[] = [];
+    
+    switch (presetName) {
+      case 'equal':
+        // Equal distribution
+        targetPercentages = Array(unlockedAllocations.length).fill(100 / unlockedAllocations.length);
+        break;
+      case 'focusTop2':
+        if (unlockedAllocations.length >= 2) {
+          const perTop = 40; // 40% each for top 2
+          const remaining = 100 - (2 * perTop);
+          const perOther = unlockedAllocations.length > 2 ? remaining / (unlockedAllocations.length - 2) : 0;
+          targetPercentages = [perTop, perTop, ...Array(unlockedAllocations.length - 2).fill(perOther)];
+        } else {
+          targetPercentages = Array(unlockedAllocations.length).fill(100 / unlockedAllocations.length);
+        }
+        break;
+      case 'focusTop3':
+        if (unlockedAllocations.length >= 3) {
+          const perTop = 30; // 30% each for top 3
+          const remaining = 100 - (3 * perTop);
+          const perOther = unlockedAllocations.length > 3 ? remaining / (unlockedAllocations.length - 3) : 0;
+          targetPercentages = [perTop, perTop, perTop, ...Array(unlockedAllocations.length - 3).fill(perOther)];
+        } else {
+          targetPercentages = Array(unlockedAllocations.length).fill(100 / unlockedAllocations.length);
+        }
+        break;
+      case 'gradual':
+        if (unlockedAllocations.length >= 5) {
+          targetPercentages = [40, 25, 20, 10, 5];
+        } else {
+          targetPercentages = Array(unlockedAllocations.length).fill(100 / unlockedAllocations.length);
+        }
+        break;
+      case 'concentrated':
+        if (unlockedAllocations.length >= 1) {
+          const perFirst = 70;
+          const remaining = 100 - perFirst;
+          const perOther = unlockedAllocations.length > 1 ? remaining / (unlockedAllocations.length - 1) : 0;
+          targetPercentages = [perFirst, ...Array(unlockedAllocations.length - 1).fill(perOther)];
+        } else {
+          targetPercentages = Array(unlockedAllocations.length).fill(100 / unlockedAllocations.length);
+        }
+        break;
+      default:
+        targetPercentages = Array(unlockedAllocations.length).fill(100 / unlockedAllocations.length);
+    }
+    
+    // Scale the percentages to fit the available space (remainingForUnlocked)
+    const scaleFactor = remainingForUnlocked / 100;
+    
+    // Apply scaled percentages to unlocked allocations
+    const updatedAllocations = localAllocations.map((alloc) => {
+      if (alloc.locked) return alloc;
+      
+      const index = unlockedAllocations.findIndex((u) => u.charity_id === alloc.charity_id);
+      if (index === -1) return alloc;
+      
+      return {
+        ...alloc,
+        percentage: targetPercentages[index] * scaleFactor,
+      };
+    });
+    
+    setLocalAllocations(updatedAllocations);
+  }, [localAllocations]);
+
+  // Apply preset when it changes
+  useEffect(() => {
+    if (preset && localAllocations.length > 0) {
+      applyPreset(preset);
+      onPresetApplied?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preset]);
 
   const toggleLock = (charityId: number) => {
     setLocalAllocations((prev) =>
