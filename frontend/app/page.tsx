@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { apiService } from '@/lib/api';
 import { Allocation } from '@/types/api';
 import AllocationSlider from '@/components/AllocationSlider';
+import AppLayout from '@/components/AppLayout';
 
 export default function Home() {
   const [allocations, setAllocations] = useState<Allocation[]>([]);
@@ -56,41 +57,36 @@ export default function Home() {
   const totalMonthlyBudget = 100; // Mocked $100/month budget
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            🎯 GiveWise Allocation Dashboard
-          </h1>
-          <p className="mt-2 text-gray-600">
+    <AppLayout>
+      <div className="p-8 bg-gray-50 min-h-full">
+        {/* Page Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Allocation Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-600">
             Manage your monthly donations to high-impact charities
           </p>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Budget Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold text-gray-700">Monthly Budget</h2>
-              <p className="text-sm text-gray-500">Committed to effective giving</p>
+              <h2 className="text-lg font-semibold text-gray-700">Monthly Budget</h2>
+              <p className="text-xs text-gray-500">Committed to effective giving</p>
             </div>
             <div className="text-right">
-              <p className="text-4xl font-bold text-green-600">${totalMonthlyBudget}</p>
-              <p className="text-sm text-gray-500">per month</p>
+              <p className="text-3xl font-bold text-green-600">${totalMonthlyBudget}</p>
+              <p className="text-xs text-gray-500">per month</p>
             </div>
           </div>
         </div>
 
         {/* Allocations Card */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-1">
             Your Allocations
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-sm text-gray-600 mb-6">
             Adjust the sliders to change how your donation is distributed
           </p>
 
@@ -150,13 +146,13 @@ export default function Home() {
 
         {/* Charity Details */}
         {!loading && allocations.length > 0 && (
-          <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
               About These Charities
             </h2>
             <div className="space-y-4">
               {allocations.map((alloc) => (
-                <div key={alloc.id} className="border-l-4 border-blue-500 pl-4">
+                <div key={alloc.id} className="border-l-4 border-blue-500 pl-4 py-2">
                   <h3 className="font-semibold text-gray-900">{alloc.charity.name}</h3>
                   <p className="text-sm text-gray-600 mt-1">{alloc.charity.description}</p>
                   <a
@@ -172,15 +168,7 @@ export default function Home() {
             </div>
           </div>
         )}
-      </main>
-
-      {/* Footer */}
-      <footer className="max-w-4xl mx-auto px-6 py-8 text-center text-gray-600">
-        <p className="text-sm">
-          Built with FastAPI + Next.js + Async SQLAlchemy | 
-          <span className="ml-2">POC for high-impact giving allocation</span>
-        </p>
-      </footer>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
