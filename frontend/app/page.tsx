@@ -214,6 +214,16 @@ export default function Home() {
               </p>
               <p className="text-xs text-gray-500 mt-2">
                 Built as a technical portfolio project to showcase full-stack development capabilities.
+                {' '}
+                <a
+                  href="https://github.com/aminbadh/gw-dashboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:opacity-80 transition-opacity"
+                  style={{ color: '#c98d1a' }}
+                >
+                  View source code on GitHub →
+                </a>
               </p>
             </div>
           </div>

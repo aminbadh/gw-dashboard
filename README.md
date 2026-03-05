@@ -4,6 +4,8 @@
 
 A production-ready vertical slice showcasing modern web development best practices: FastAPI with async SQLAlchemy on the backend, Next.js with TypeScript on the frontend, and intelligent client-side state management for dynamic budget allocation.
 
+**🔗 Repository**: [https://github.com/aminbadh/gw-dashboard](https://github.com/aminbadh/gw-dashboard)
+
 ---
 
 ## ⚠️ Disclaimer
