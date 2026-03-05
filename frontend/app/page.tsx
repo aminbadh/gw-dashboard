@@ -12,6 +12,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [displayMode, setDisplayMode] = useState<'percentage' | 'monetary'>('percentage');
 
   useEffect(() => {
     fetchAllocations();
@@ -54,7 +55,7 @@ export default function Home() {
     }
   };
 
-  const totalMonthlyBudget = 100; // Mocked $100/month budget
+  const totalMonthlyBudget = 1000; // HKD 1000/month budget
 
   return (
     <AppLayout>
@@ -75,7 +76,7 @@ export default function Home() {
               <p className="text-xs text-gray-500">Committed to effective giving</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold text-green-600">${totalMonthlyBudget}</p>
+              <p className="text-3xl font-bold text-green-600">HKD {totalMonthlyBudget.toLocaleString()}</p>
               <p className="text-xs text-gray-500">per month</p>
             </div>
           </div>
@@ -83,12 +84,42 @@ export default function Home() {
 
         {/* Allocations Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-1">
-            Your Allocations
-          </h2>
-          <p className="text-sm text-gray-600 mb-6">
-            Adjust the sliders to change how your donation is distributed
-          </p>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Your Allocations
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Adjust the sliders to change how your donation is distributed
+              </p>
+            </div>
+            
+            {/* Display Mode Toggle */}
+            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setDisplayMode('percentage')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  displayMode === 'percentage'
+                    ? 'text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                style={displayMode === 'percentage' ? { backgroundColor: '#fabe36' } : {}}
+              >
+                %
+              </button>
+              <button
+                onClick={() => setDisplayMode('monetary')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  displayMode === 'monetary'
+                    ? 'text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                style={displayMode === 'monetary' ? { backgroundColor: '#fabe36' } : {}}
+              >
+                HKD
+              </button>
+            </div>
+          </div>
 
           {/* Success Message */}
           {successMessage && (
@@ -124,6 +155,8 @@ export default function Home() {
               <AllocationSlider
                 allocations={allocations}
                 onUpdate={handleUpdateAllocations}
+                displayMode={displayMode}
+                monthlyBudget={totalMonthlyBudget}
               />
               
               {saving && (

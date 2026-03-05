@@ -6,9 +6,11 @@ import { Allocation } from '@/types/api';
 interface AllocationSliderProps {
   allocations: Allocation[];
   onUpdate: (updatedAllocations: { charity_id: number; percentage: number }[]) => void;
+  displayMode: 'percentage' | 'monetary';
+  monthlyBudget: number;
 }
 
-export default function AllocationSlider({ allocations, onUpdate }: AllocationSliderProps) {
+export default function AllocationSlider({ allocations, onUpdate, displayMode, monthlyBudget }: AllocationSliderProps) {
   const [localAllocations, setLocalAllocations] = useState<
     { id: number; charity_id: number; charityName: string; percentage: number }[]
   >([]);
@@ -94,6 +96,25 @@ export default function AllocationSlider({ allocations, onUpdate }: AllocationSl
 
   const totalPercentage = localAllocations.reduce((sum, a) => sum + a.percentage, 0);
 
+  // Helper function to format display value
+  const formatDisplayValue = (percentage: number) => {
+    if (displayMode === 'percentage') {
+      return `${percentage.toFixed(1)}%`;
+    } else {
+      const amount = (percentage / 100) * monthlyBudget;
+      return `HKD ${amount.toLocaleString('en-HK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+  };
+
+  const formatTotalDisplay = () => {
+    if (displayMode === 'percentage') {
+      return `${totalPercentage.toFixed(1)}%`;
+    } else {
+      const totalAmount = (totalPercentage / 100) * monthlyBudget;
+      return `HKD ${totalAmount.toLocaleString('en-HK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Allocation Sliders */}
@@ -105,7 +126,7 @@ export default function AllocationSlider({ allocations, onUpdate }: AllocationSl
                 {alloc.charityName}
               </label>
               <span className="text-lg font-bold" style={{ color: '#fabe36' }}>
-                {alloc.percentage.toFixed(1)}%
+                {formatDisplayValue(alloc.percentage)}
               </span>
             </div>
             <div className="relative">
@@ -136,7 +157,7 @@ export default function AllocationSlider({ allocations, onUpdate }: AllocationSl
               Math.abs(totalPercentage - 100) < 0.1 ? 'text-green-600' : 'text-red-600'
             }`}
           >
-            {totalPercentage.toFixed(1)}%
+            {formatTotalDisplay()}
           </span>
         </div>
 
@@ -163,7 +184,10 @@ export default function AllocationSlider({ allocations, onUpdate }: AllocationSl
 
         {Math.abs(totalPercentage - 100) > 0.1 && (
           <p className="mt-2 text-sm text-red-600 text-center">
-            Total must equal 100% to save
+            {displayMode === 'percentage' 
+              ? 'Total must equal 100% to save'
+              : `Total must equal HKD ${monthlyBudget.toLocaleString('en-HK', { minimumFractionDigits: 2 })} to save`
+            }
           </p>
         )}
       </div>
