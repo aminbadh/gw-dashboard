@@ -169,6 +169,25 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* Disclaimer */}
+        <div className="mt-8 bg-gray-50 border border-gray-200 rounded-xl p-6">
+          <div className="flex items-start space-x-3">
+            <span className="text-2xl">ℹ️</span>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">Demonstration Project</h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                This is a proof-of-concept technical demonstration and is <strong>not affiliated with</strong> GiveWell, 
+                Against Malaria Foundation, GiveDirectly, Helen Keller International, Malaria Consortium, New Incentives, 
+                or any other charitable organization mentioned. Charity names and information are used for demonstration 
+                purposes only. For actual donations, please visit the official websites of these organizations.
+              </p>
+              <p className="text-xs text-gray-500 mt-2">
+                Built as a technical portfolio project to showcase full-stack development capabilities.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </AppLayout>
   );

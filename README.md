@@ -6,6 +6,14 @@ A production-ready vertical slice showcasing modern web development best practic
 
 ---
 
+## ⚠️ Disclaimer
+
+**This is a technical demonstration project and portfolio piece.** This application is **not affiliated with, endorsed by, or connected to** GiveWell, Against Malaria Foundation, GiveDirectly, Helen Keller International, Malaria Consortium, New Incentives, or any other charitable organization mentioned in this project.
+
+All charity names, descriptions, and information are used solely for demonstration purposes to showcase technical capabilities. This is not a functional donation platform. For actual charitable donations, please visit the official websites of these organizations directly.
+
+---
+
 ## 🚀 Tech Stack (The "Must-Haves")
 
 ### Backend
@@ -316,11 +324,13 @@ To make this production-ready:
 
 MIT License - feel free to use this POC as a learning resource or starting point for your own projects.
 
+**Important:** If you use this code, ensure you add appropriate disclaimers if using real organization names, or replace them with fictional examples. This project is for educational and portfolio purposes only.
+
 ---
 
 ## 🙏 Acknowledgments
 
-- **GiveWell** for charity recommendations
+- Charity information inspired by **GiveWell** recommendations (for demonstration purposes only)
 - **FastAPI** team for excellent async Python framework
 - **Vercel** for Next.js and amazing developer experience
 - **SQLAlchemy** team for robust async ORM
