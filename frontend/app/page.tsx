@@ -114,7 +114,7 @@ export default function Home() {
           {/* Loading State */}
           {loading && (
             <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderBottomColor: '#fabe36' }}></div>
             </div>
           )}
 
@@ -152,14 +152,15 @@ export default function Home() {
             </h2>
             <div className="space-y-4">
               {allocations.map((alloc) => (
-                <div key={alloc.id} className="border-l-4 border-blue-500 pl-4 py-2">
+                <div key={alloc.id} className="border-l-4 pl-4 py-2" style={{ borderLeftColor: '#fabe36' }}>
                   <h3 className="font-semibold text-gray-900">{alloc.charity.name}</h3>
                   <p className="text-sm text-gray-600 mt-1">{alloc.charity.description}</p>
                   <a
                     href={alloc.charity.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-800 underline mt-1 inline-block"
+                    className="text-sm underline mt-1 inline-block hover:opacity-80 transition-opacity"
+                    style={{ color: '#c98d1a' }}
                   >
                     Learn more →
                   </a>

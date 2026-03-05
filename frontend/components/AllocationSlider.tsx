@@ -104,7 +104,7 @@ export default function AllocationSlider({ allocations, onUpdate }: AllocationSl
               <label htmlFor={`slider-${alloc.charity_id}`} className="font-medium text-gray-700">
                 {alloc.charityName}
               </label>
-              <span className="text-lg font-bold text-blue-600">
+              <span className="text-lg font-bold" style={{ color: '#fabe36' }}>
                 {alloc.percentage.toFixed(1)}%
               </span>
             </div>
@@ -119,7 +119,7 @@ export default function AllocationSlider({ allocations, onUpdate }: AllocationSl
                 onChange={(e) => handleSliderChange(alloc.charity_id, parseFloat(e.target.value))}
                 className="w-full h-3 rounded-lg appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #2563eb 0%, #2563eb ${alloc.percentage}%, #e5e7eb ${alloc.percentage}%, #e5e7eb 100%)`,
+                  background: `linear-gradient(to right, #fabe36 0%, #fabe36 ${alloc.percentage}%, #e5e7eb ${alloc.percentage}%, #e5e7eb 100%)`,
                 }}
               />
             </div>
@@ -143,9 +143,20 @@ export default function AllocationSlider({ allocations, onUpdate }: AllocationSl
         <button
           onClick={handleSave}
           disabled={Math.abs(totalPercentage - 100) > 0.1}
-          className="w-full py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg 
-                   hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed
-                   transition-colors duration-200"
+          className="w-full py-3 px-6 text-white font-semibold rounded-lg 
+                   disabled:bg-gray-300 disabled:cursor-not-allowed
+                   transition-all duration-200"
+          style={Math.abs(totalPercentage - 100) <= 0.1 ? { backgroundColor: '#fabe36' } : {}}
+          onMouseEnter={(e) => {
+            if (Math.abs(totalPercentage - 100) <= 0.1) {
+              e.currentTarget.style.backgroundColor = '#f5a623';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (Math.abs(totalPercentage - 100) <= 0.1) {
+              e.currentTarget.style.backgroundColor = '#fabe36';
+            }
+          }}
         >
           Save Allocations
         </button>

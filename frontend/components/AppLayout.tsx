@@ -66,7 +66,7 @@ export default function AppLayout({ children }: LayoutProps) {
       <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50 shadow-sm">
         <div className="h-full px-6 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" style={{ background: 'linear-gradient(135deg, #fabe36 0%, #f5a623 100%)' }}>
               <span className="text-white text-xl font-bold">G</span>
             </div>
             <div>
@@ -96,9 +96,10 @@ export default function AppLayout({ children }: LayoutProps) {
                   href={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     item.active
-                      ? 'bg-blue-50 text-blue-700 font-medium'
+                      ? 'font-medium'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
+                  style={item.active ? { backgroundColor: '#fef3e2', color: '#8a6b1f' } : {}}
                 >
                   <span className="text-xl">{item.icon}</span>
                   <span className="text-sm">{item.label}</span>
@@ -119,7 +120,7 @@ export default function AppLayout({ children }: LayoutProps) {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200" style={{ background: 'linear-gradient(135deg, #fef9f0 0%, #fef3e2 100%)' }}>
           <div className="text-xs text-gray-600 space-y-1">
             <p className="font-semibold text-gray-700">💡 Coming Soon</p>
             <p className="text-gray-500">More tools to maximize your giving impact</p>
