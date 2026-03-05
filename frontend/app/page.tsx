@@ -121,13 +121,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Success Message */}
-          {successMessage && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
-              {successMessage}
-            </div>
-          )}
-
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -159,11 +152,15 @@ export default function Home() {
                 monthlyBudget={totalMonthlyBudget}
               />
               
-              {saving && (
-                <div className="mt-4 text-center text-gray-600">
-                  Saving changes...
-                </div>
-              )}
+              {/* Status Messages */}
+              <div className="mt-4 text-center min-h-[32px]">
+                {saving && (
+                  <p className="text-gray-600">Saving changes...</p>
+                )}
+                {successMessage && !saving && (
+                  <p className="text-green-600 font-medium">{successMessage}</p>
+                )}
+              </div>
             </>
           )}
 
