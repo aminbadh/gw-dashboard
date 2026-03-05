@@ -12,7 +12,7 @@ interface AllocationSliderProps {
 
 export default function AllocationSlider({ allocations, onUpdate, displayMode, monthlyBudget }: AllocationSliderProps) {
   const [localAllocations, setLocalAllocations] = useState<
-    { id: number; charity_id: number; charityName: string; percentage: number }[]
+    { id: number; charity_id: number; charityName: string; percentage: number; locked: boolean }[]
   >([]);
 
   useEffect(() => {
@@ -22,33 +22,41 @@ export default function AllocationSlider({ allocations, onUpdate, displayMode, m
       charity_id: alloc.charity_id,
       charityName: alloc.charity.name,
       percentage: alloc.percentage * 100, // Convert to percentage (0-100)
+      locked: false, // Start with all unlocked
     }));
     setLocalAllocations(mapped);
   }, [allocations]);
 
+  const toggleLock = (charityId: number) => {
+    setLocalAllocations((prev) =>
+      prev.map((alloc) =>
+        alloc.charity_id === charityId ? { ...alloc, locked: !alloc.locked } : alloc
+      )
+    );
+  };
+
   /**
    * ⭐ THE SMART BALANCING LOGIC ⭐
    * Ensures total allocation always equals 100%
+   * Respects locked charities - only adjusts unlocked ones
    */
   const handleSliderChange = (charityId: number, newValue: number) => {
     const currentIndex = localAllocations.findIndex((a) => a.charity_id === charityId);
     if (currentIndex === -1) return;
 
     const currentValue = localAllocations[currentIndex].percentage;
-    const delta = newValue - currentValue;
-
-    // Calculate the sum of all other allocations
-    const otherAllocations = localAllocations.filter((a) => a.charity_id !== charityId);
-    const otherTotal = otherAllocations.reduce((sum, a) => sum + a.percentage, 0);
-
-    // If increasing this charity, we need to decrease others proportionally
-    if (delta > 0) {
-      const maxIncrease = 100 - newValue; // Space available for others
-      if (otherTotal < delta) {
-        // Can't increase by that much - cap it
-        newValue = 100 - otherTotal;
-      }
-    }
+    
+    // Get locked and unlocked allocations (excluding current)
+    const lockedAllocations = localAllocations.filter((a) => a.locked && a.charity_id !== charityId);
+    const unlockedAllocations = localAllocations.filter((a) => !a.locked && a.charity_id !== charityId);
+    
+    const lockedTotal = lockedAllocations.reduce((sum, a) => sum + a.percentage, 0);
+    const unlockedTotal = unlockedAllocations.reduce((sum, a) => sum + a.percentage, 0);
+    
+    // Calculate available space for this charity
+    const maxValue = 100 - lockedTotal;
+    newValue = Math.min(newValue, maxValue);
+    newValue = Math.max(newValue, 0);
 
     // Create new allocations array
     const updatedAllocations = [...localAllocations];
@@ -57,29 +65,32 @@ export default function AllocationSlider({ allocations, onUpdate, displayMode, m
       percentage: newValue,
     };
 
-    // Calculate how much to distribute among others
-    const remainingPercentage = 100 - newValue;
+    // Calculate remaining percentage to distribute among unlocked charities
+    const remainingForUnlocked = 100 - newValue - lockedTotal;
 
-    // Distribute the remaining percentage proportionally among other charities
-    if (otherTotal > 0) {
-      otherAllocations.forEach((alloc) => {
-        const index = updatedAllocations.findIndex((a) => a.charity_id === alloc.charity_id);
-        const proportion = alloc.percentage / otherTotal;
-        updatedAllocations[index] = {
-          ...updatedAllocations[index],
-          percentage: remainingPercentage * proportion,
-        };
-      });
-    } else {
-      // If all others are 0, distribute equally
-      const equalShare = remainingPercentage / otherAllocations.length;
-      otherAllocations.forEach((alloc) => {
-        const index = updatedAllocations.findIndex((a) => a.charity_id === alloc.charity_id);
-        updatedAllocations[index] = {
-          ...updatedAllocations[index],
-          percentage: equalShare,
-        };
-      });
+    // Distribute the remaining percentage proportionally among unlocked charities only
+    if (unlockedAllocations.length > 0) {
+      if (unlockedTotal > 0) {
+        // Distribute proportionally based on current values
+        unlockedAllocations.forEach((alloc) => {
+          const index = updatedAllocations.findIndex((a) => a.charity_id === alloc.charity_id);
+          const proportion = alloc.percentage / unlockedTotal;
+          updatedAllocations[index] = {
+            ...updatedAllocations[index],
+            percentage: remainingForUnlocked * proportion,
+          };
+        });
+      } else {
+        // Distribute equally if all unlocked are at 0
+        const equalShare = remainingForUnlocked / unlockedAllocations.length;
+        unlockedAllocations.forEach((alloc) => {
+          const index = updatedAllocations.findIndex((a) => a.charity_id === alloc.charity_id);
+          updatedAllocations[index] = {
+            ...updatedAllocations[index],
+            percentage: equalShare,
+          };
+        });
+      }
     }
 
     setLocalAllocations(updatedAllocations);
@@ -125,9 +136,21 @@ export default function AllocationSlider({ allocations, onUpdate, displayMode, m
               <label htmlFor={`slider-${alloc.charity_id}`} className="font-medium text-gray-700">
                 {alloc.charityName}
               </label>
-              <span className="text-lg font-bold" style={{ color: '#fabe36' }}>
-                {formatDisplayValue(alloc.percentage)}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-bold" style={{ color: '#fabe36' }}>
+                  {formatDisplayValue(alloc.percentage)}
+                </span>
+                <button
+                  onClick={() => toggleLock(alloc.charity_id)}
+                  className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                  title={alloc.locked ? 'Unlock allocation' : 'Lock allocation'}
+                  type="button"
+                >
+                  <span className="text-xl" style={{ color: alloc.locked ? '#fabe36' : '#9ca3af' }}>
+                    {alloc.locked ? '🔒' : '🔓'}
+                  </span>
+                </button>
+              </div>
             </div>
             <div className="relative">
               <input
@@ -138,9 +161,12 @@ export default function AllocationSlider({ allocations, onUpdate, displayMode, m
                 step="0.1"
                 value={alloc.percentage}
                 onChange={(e) => handleSliderChange(alloc.charity_id, parseFloat(e.target.value))}
-                className="w-full h-3 rounded-lg appearance-none cursor-pointer"
+                disabled={alloc.locked}
+                className="w-full h-3 rounded-lg appearance-none cursor-pointer transition-opacity"
                 style={{
-                  background: `linear-gradient(to right, #fabe36 0%, #fabe36 ${alloc.percentage}%, #e5e7eb ${alloc.percentage}%, #e5e7eb 100%)`,
+                  background: `linear-gradient(to right, ${alloc.locked ? '#fef3e2' : '#fabe36'} 0%, ${alloc.locked ? '#fef3e2' : '#fabe36'} ${alloc.percentage}%, #e5e7eb ${alloc.percentage}%, #e5e7eb 100%)`,
+                  cursor: alloc.locked ? 'not-allowed' : 'pointer',
+                  opacity: alloc.locked ? 0.6 : 1,
                 }}
               />
             </div>
