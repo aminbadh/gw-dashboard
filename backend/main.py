@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from typing import List
 from contextlib import asynccontextmanager
+import os
 
 from database import get_db, init_db
 from models import Charity, Allocation, AllocationHistory
@@ -38,9 +39,11 @@ app = FastAPI(
 )
 
 # CORS middleware to allow Next.js frontend
+# In production, set CORS_ORIGINS env var to your Vercel URL
+allowed_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js default port
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -342,7 +345,7 @@ async def restore_allocation_from_history(
 
 # ==================== HEALTH CHECK ====================
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 async def root():
     """Health check endpoint"""
     return {
