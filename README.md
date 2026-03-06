@@ -1,4 +1,4 @@
-# 🎯 GiveWise Allocation Dashboard
+# GiveWise Allocation Dashboard
 
 > **A high-impact POC demonstrating full-stack async architecture for charitable giving allocation**
 
@@ -39,66 +39,82 @@ All charity names, descriptions, and information are used solely for demonstrati
 
 ## ✨ Key Features
 
-### 1. ⭐ Smart Allocation Logic (Frontend)
+### 1. ⭐ Smart Allocation Sliders
 Dynamic slider system that automatically balances charity allocations to always equal 100%. When you increase one charity's allocation, others adjust proportionally - no manual math required.
 
-**Technical Highlight:**
-```typescript
-// Proportional redistribution algorithm in AllocationSlider.tsx
-const handleSliderChange = (charityId: number, newValue: number) => {
-  // Calculate remaining percentage for other charities
-  // Distribute proportionally based on current ratios
-  // Ensures total always equals 100%
-}
-```
+**Features:**
+- Real-time proportional redistribution
+- Lock/unlock individual charities to preserve their allocation
+- Visual percentage bars with smooth transitions
+- HKD/Percentage toggle for viewing allocations
+- Total validation ensures 100% allocation at all times
 
-### 2. 🔄 Async-First Backend Architecture
+### 2. 🎯 Preset Distributions
+Quick allocation strategies for common giving patterns:
+- **Equal** - Split evenly across all charities
+- **Top 2** - 48% each to top 2, remaining split equally
+- **Top 3** - 30% each to top 3, remaining split equally  
+- **Gradual** - Decreasing distribution (40%, 25%, 20%, 10%, 5%)
+- **Concentrated** - Focus on a single charity (60% + remainder split)
+
+### 3. 📜 Allocation History
+Track and restore previous allocations:
+- Automatic snapshots saved on each update
+- View past allocation distributions with timestamps
+- One-click restore to load previous values
+- Review before re-saving (non-destructive preview)
+
+### 4. 🔄 Async-First Backend Architecture
 All database operations use async/await with SQLAlchemy's AsyncSession for maximum performance.
 
 **Technical Highlight:**
 ```python
-# Atomic transaction in main.py PATCH /allocations endpoint
-async with db.begin():
-    # Update multiple allocations atomically
+# Atomic transactions with automatic history tracking
+async def update_allocations(...):
+    # Save current state to history
+    # Update allocations atomically
     # Validate total equals 100% before commit
     # Rollback automatically on error
 ```
 
-### 3. 🎨 Real-time UI Updates
-- Visual percentage bars with smooth transitions
-- Instant validation feedback
-- Loading and error states
-- Success notifications
-
-### 4. 📊 Database Design
-Simple but effective schema demonstrating SQL relationships:
-- **Charity** table with basic charity information
-- **Allocation** table with foreign keys and percentage storage
-- One-to-many relationship (Charity → Allocations)
+### 5. 📊 Database Design
+Clean schema with three tables:
+- **Charity** - Organization information
+- **Allocation** - User allocation percentages with FK to Charity
+- **AllocationHistory** - Timestamped snapshots for rollback
 
 ---
 
 ## 🏗️ Project Structure
 
 ```
-givewise-poc/
+gw-dashboard/
 ├── backend/
-│   ├── main.py           # FastAPI app & routes
-│   ├── models.py         # SQLAlchemy models
-│   ├── schemas.py        # Pydantic schemas
-│   ├── database.py       # Async DB configuration
-│   ├── seed.py           # Database seeding script
-│   └── requirements.txt  # Python dependencies
+│   ├── main.py              # FastAPI app & routes
+│   ├── models.py            # SQLAlchemy models (Charity, Allocation, AllocationHistory)
+│   ├── schemas.py           # Pydantic schemas
+│   ├── database.py          # Async DB configuration with env support
+│   ├── seed.py              # Database seeding script (idempotent)
+│   ├── Dockerfile           # Backend container
+│   ├── .env.example         # Environment variables template
+│   └── requirements.txt     # Python dependencies
 │
-└── frontend/
-    ├── app/
-    │   └── page.tsx      # Main dashboard page
-    ├── components/
-    │   └── AllocationSlider.tsx  # Smart slider logic
-    ├── lib/
-    │   └── api.ts        # API service layer
-    └── types/
-        └── api.ts        # TypeScript interfaces
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx         # Main dashboard page
+│   │   └── layout.tsx       # Root layout with metadata
+│   ├── components/
+│   │   ├── AllocationSlider.tsx    # Smart slider with lock/presets
+│   │   ├── AllocationHistory.tsx   # History display & restore
+│   │   └── AppLayout.tsx           # Common layout wrapper
+│   ├── lib/
+│   │   └── api.ts           # API service layer
+│   ├── types/
+│   │   └── api.ts           # TypeScript interfaces
+│   ├── Dockerfile           # Frontend container (multi-stage)
+│   └── next.config.ts       # Next.js configuration
+│
+└── docker-compose.yml       # Orchestration for both services
 ```
 
 ---
@@ -203,47 +219,17 @@ docker run -p 3000:3000 givewise-frontend
 - `POST /charities` - Create new charity
 
 ### Allocations
-- `GET /allocations?user_id=1` - Get user's allocations
-- `PATCH /allocations?user_id=1` - Update all allocations (atomic transaction)
+- `GET /allocations?user_id=1` - Get user's current allocations
+- `PATCH /allocations?user_id=1` - Update allocations (atomic, saves history)
 - `DELETE /allocations/{id}` - Delete allocation
+
+### Allocation History
+- `GET /allocations/history?user_id=1&limit=10` - Get historical snapshots
+- `POST /allocations/history/{timestamp}/restore` - Restore from history
 
 ### Health
 - `GET /` - Health check
-- `GET /health` - Detailed health status
-
----
-
-## 🎯 "Recruiter Bait" Highlights
-
-### 1. **Built with AI Assistance**
-This POC was developed with AI-assisted code generation, demonstrating effective human-AI collaboration for rapid prototyping. Modern development workflows leverage AI for boilerplate generation while maintaining code quality and best practices.
-
-### 2. **Async First**
-Every database operation uses `asyncio` and `AsyncSession` for non-blocking I/O:
-- Better resource utilization
-- Improved scalability under load
-- Production-ready patterns
-
-**Example:**
-```python
-async with db.begin():
-    result = await db.execute(select(Allocation))
-    await db.commit()
-```
-
-### 3. **Type Safety Everywhere**
-- Backend: Pydantic models with validation
-- Frontend: TypeScript with strict mode
-- End-to-end type safety from database to UI
-
-### 4. **Transaction Safety**
-The PATCH `/allocations` endpoint demonstrates proper transaction handling:
-- Atomic updates (all-or-nothing)
-- Validation before commit (must equal 100%)
-- Automatic rollback on error
-
-### 5. **Timezone Ready**
-Built in a sprint format demonstrating rapid development capability. The codebase is clean, documented, and production-ready despite the tight timeline.
+- `GET /docs` - Interactive API documentation (Swagger UI)
 
 ---
 
@@ -285,76 +271,42 @@ curl -X PATCH http://localhost:8000/allocations?user_id=1 \
 ## 🔧 Technical Decisions
 
 ### Why SQLite for POC?
-- Zero configuration
-- Fast setup
-- Easy to share/demo
-- **Easily swappable for PostgreSQL** (just change DATABASE_URL)
+- Zero configuration required
+- Fast development iteration
+- Easy to demo and share
+- PostgreSQL-ready (just change `DATABASE_URL` in `.env`)
 
 ### Why Async SQLAlchemy?
-- Future-proof for high-traffic scenarios
 - Non-blocking I/O for better resource utilization
-- Industry best practice for modern Python APIs
+- Scales better under concurrent load
+- Modern Python async/await patterns
+- Industry best practice for new APIs
 
 ### Why Next.js App Router?
 - Server and client components
-- Built-in routing
-- Optimized for production
-- Great TypeScript support
+- Built-in routing and file-based structure
+- Optimized for production builds
+- Excellent TypeScript support
 
----
-
-## 🚀 Production Considerations
-
-To make this production-ready:
-
-1. **Database**: Switch to PostgreSQL
-   ```python
-   DATABASE_URL = "postgresql+asyncpg://user:pass@host/db"
-   ```
-
-2. **Authentication**: Add user authentication (JWT, OAuth)
-
-3. **Environment Variables**: Use proper secret management
-
-4. **Error Handling**: Add Sentry or similar for error tracking
-
-5. **Testing**: Add pytest for backend, Jest for frontend
-
-6. **CI/CD**: Add GitHub Actions for automated testing and deployment
-
-7. **Monitoring**: Add observability (logs, metrics, traces)
-
----
-
-## 📈 Future Enhancements
-
-- [ ] User authentication and multiple user support
-- [ ] Historical allocation tracking and analytics
-- [ ] Monthly donation history and impact reports
-- [ ] Email notifications for successful donations
-- [ ] Integration with payment processors (Stripe)
-- [ ] Mobile-responsive design enhancements
-- [ ] Dark mode support
-- [ ] Export allocations as CSV/PDF
+### Why Docker?
+- Consistent environment across development and deployment
+- Easy to run the full stack with one command
+- Demonstrates containerization skills
+- Production-ready deployment approach
 
 ---
 
 ## 👨‍💻 Development Notes
 
-**Time to Build**: ~4 hours (demonstrating rapid prototyping capability)
-
-**Lines of Code**:
-- Backend: ~300 lines
-- Frontend: ~400 lines
-- Total: ~700 lines of production-quality code
-
-**Key Patterns Used**:
+**Key Patterns Demonstrated**:
+- Async/await throughout the stack
 - Dependency Injection (FastAPI)
-- Repository pattern (could be added)
-- Service layer pattern
+- Atomic database transactions
 - Component composition (React)
-- Custom hooks (React)
-- Type-safe API clients
+- Type-safe API contracts (Pydantic + TypeScript)
+- Container orchestration (Docker Compose)
+- Environment-based configuration
+- Idempotent database seeding
 
 ---
 
