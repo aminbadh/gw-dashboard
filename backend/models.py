@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from database import Base
 
 
@@ -33,3 +34,20 @@ class Allocation(Base):
 
     def __repr__(self):
         return f"<Allocation(charity_id={self.charity_id}, percentage={self.percentage * 100}%)>"
+
+
+class AllocationHistory(Base):
+    """Model representing historical snapshots of allocations"""
+    __tablename__ = "allocation_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False, default=1)
+    charity_id = Column(Integer, ForeignKey("charities.id"), nullable=False)
+    percentage = Column(Float, nullable=False)
+    saved_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    
+    # Relationship to charity
+    charity = relationship("Charity")
+
+    def __repr__(self):
+        return f"<AllocationHistory(charity_id={self.charity_id}, percentage={self.percentage * 100}%, saved_at={self.saved_at})>"

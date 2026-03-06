@@ -1,6 +1,6 @@
 // API service for communicating with FastAPI backend
 
-import { Charity, Allocation, AllocationUpdatePayload } from '@/types/api';
+import { Charity, Allocation, AllocationUpdatePayload, AllocationHistorySnapshot } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -50,6 +50,13 @@ class ApiService {
       body: JSON.stringify(payload),
     });
     return this.handleResponse<Allocation[]>(response);
+  }
+
+  // ==================== ALLOCATION HISTORY ENDPOINTS ====================
+
+  async getAllocationHistory(userId: number = 1, limit: number = 10): Promise<AllocationHistorySnapshot[]> {
+    const response = await fetch(`${this.baseUrl}/allocations/history?user_id=${userId}&limit=${limit}`);
+    return this.handleResponse<AllocationHistorySnapshot[]>(response);
   }
 
   // ==================== HEALTH CHECK ====================

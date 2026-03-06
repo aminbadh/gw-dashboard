@@ -23,3 +23,14 @@ export interface AllocationUpdate {
 export interface AllocationUpdatePayload {
   allocations: AllocationUpdate[];
 }
+
+export interface AllocationHistoryItem {
+  charity_id: number;
+  percentage: number;
+  charity: Charity;
+}
+
+export interface AllocationHistorySnapshot {
+  saved_at: string;
+  allocations: AllocationHistoryItem[];
+}

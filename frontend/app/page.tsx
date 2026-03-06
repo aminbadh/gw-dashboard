@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { apiService } from '@/lib/api';
 import { Allocation } from '@/types/api';
 import AllocationSlider from '@/components/AllocationSlider';
+import AllocationHistory from '@/components/AllocationHistory';
 import AppLayout from '@/components/AppLayout';
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [displayMode, setDisplayMode] = useState<'percentage' | 'monetary'>('percentage');
   const [selectedPreset, setSelectedPreset] = useState<string>('');
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
 
   useEffect(() => {
     fetchAllocations();
@@ -48,12 +50,36 @@ export default function Home() {
       setAllocations(data);
       setSuccessMessage('✅ Allocations saved successfully!');
       setTimeout(() => setSuccessMessage(null), 3000);
+      setHistoryRefreshTrigger(prev => prev + 1); // Trigger history refresh
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update allocations');
       console.error('Error updating allocations:', err);
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleRestoreFromHistory = (restoredAllocations: { charity_id: number; percentage: number }[]) => {
+    // Update current allocations with restored percentages (locally, not saved yet)
+    const updated = allocations.map((alloc) => {
+      const restored = restoredAllocations.find((r) => r.charity_id === alloc.charity_id);
+      if (restored) {
+        return {
+          ...alloc,
+          percentage: restored.percentage,
+        };
+      }
+      return alloc;
+    });
+    
+    setAllocations(updated);
+    setSuccessMessage('💡 Previous allocation loaded. Click "Save Allocations" to apply.');
+    setTimeout(() => setSuccessMessage(null), 5000);
+    
+    // Scroll to allocations section
+    setTimeout(() => {
+      document.getElementById('allocations-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const totalMonthlyBudget = 1000; // HKD 1000/month budget
@@ -84,7 +110,7 @@ export default function Home() {
         </div>
 
         {/* Allocations Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div id="allocations-section" className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-xl font-semibold text-gray-800">
@@ -226,6 +252,19 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Allocation History */}
+        {!loading && allocations.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              📊 Allocation History
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Review and restore previous allocation settings.
+            </p>
+            <AllocationHistory onRestore={handleRestoreFromHistory} refreshTrigger={historyRefreshTrigger} />
           </div>
         )}
 

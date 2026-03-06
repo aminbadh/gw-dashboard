@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import List
+from datetime import datetime
 
 
 class CharityBase(BaseModel):
@@ -63,6 +64,25 @@ class AllocationSimple(BaseModel):
     id: int
     charity_id: int
     percentage: float
+
+    class Config:
+        from_attributes = True
+
+
+class AllocationHistoryItem(BaseModel):
+    """Schema for a single allocation history record"""
+    charity_id: int
+    percentage: float
+    charity: CharityResponse
+
+    class Config:
+        from_attributes = True
+
+
+class AllocationHistorySnapshot(BaseModel):
+    """Schema for a complete historical snapshot"""
+    saved_at: datetime
+    allocations: List[AllocationHistoryItem]
 
     class Config:
         from_attributes = True
