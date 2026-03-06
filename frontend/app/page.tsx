@@ -48,7 +48,7 @@ export default function Home() {
       });
       
       setAllocations(data);
-      setSuccessMessage('✅ Allocations saved successfully!');
+      setSuccessMessage('Allocations saved successfully!');
       setTimeout(() => setSuccessMessage(null), 3000);
       setHistoryRefreshTrigger(prev => prev + 1); // Trigger history refresh
     } catch (err) {
@@ -73,7 +73,7 @@ export default function Home() {
     });
     
     setAllocations(updated);
-    setSuccessMessage('💡 Previous allocation loaded. Click "Save Allocations" to apply.');
+    setSuccessMessage('Previous allocation loaded. Click "Save Allocations" to apply.');
     setTimeout(() => setSuccessMessage(null), 5000);
     
     // Scroll to allocations section
@@ -177,11 +177,14 @@ export default function Home() {
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 font-medium">Error</p>
-              <p className="text-red-600 text-sm">{error}</p>
+              <div className="flex items-start gap-2 mb-2">
+                <span className="text-red-600 text-lg flex-shrink-0">❌</span>
+                <p className="text-red-800 font-medium">Error</p>
+              </div>
+              <p className="text-red-600 text-sm ml-7">{error}</p>
               <button
                 onClick={fetchAllocations}
-                className="mt-2 text-sm text-red-700 underline hover:text-red-800"
+                className="mt-2 ml-7 text-sm text-red-700 underline hover:text-red-800"
               >
                 Try again
               </button>
@@ -208,12 +211,18 @@ export default function Home() {
               />
               
               {/* Status Messages */}
-              <div className="mt-4 text-center min-h-[32px]">
+              <div className="mt-4 min-h-[32px]">
                 {saving && (
-                  <p className="text-gray-600">Saving changes...</p>
+                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg border border-blue-200 bg-blue-50">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
+                    <p className="text-blue-800 text-sm font-medium">Saving changes...</p>
+                  </div>
                 )}
                 {successMessage && !saving && (
-                  <p className="text-green-600 font-medium">{successMessage}</p>
+                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg border border-green-200 bg-green-50">
+                    <span className="text-green-600 text-lg flex-shrink-0">✅</span>
+                    <p className="text-green-800 text-sm font-medium">{successMessage}</p>
+                  </div>
                 )}
               </div>
             </>
