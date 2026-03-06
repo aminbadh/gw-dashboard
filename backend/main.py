@@ -116,8 +116,6 @@ async def update_allocations(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    ⭐ THE "RECRUITER BAIT" ENDPOINT ⭐
-    
     Update multiple allocations atomically using async SQLAlchemy transaction.
     Validates that total allocation equals 100% before committing.
     Also saves a snapshot to history for undo/rollback functionality.

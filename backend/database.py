@@ -1,12 +1,19 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+import os
+from dotenv import load_dotenv
 
-# SQLite for speed (can swap to PostgreSQL later)
-DATABASE_URL = "sqlite+aiosqlite:///./givewise.db"
+# Load environment variables from .env file
+load_dotenv()
 
+# Environment configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")  # development or production
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./givewise.db")
+
+# SQLAlchemy engine with environment-based configuration
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,  # Set to False in production
+    echo=ENVIRONMENT == "development",  # Only log SQL queries in development
     future=True
 )
 
