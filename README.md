@@ -148,6 +148,42 @@ npm run dev
 
 Frontend will be available at: **http://localhost:3000**
 
+### 3. Docker Setup (Recommended for Production)
+
+The easiest way to run the entire application with Docker:
+
+```bash
+# Build and start both services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+The Docker setup includes:
+- **Backend** on port 8000 with production configuration
+- **Frontend** on port 3000 with optimized build
+- **Persistent volume** for database storage
+- **Health checks** for reliability
+- **Automatic restarts** on failure
+
+**Individual Docker builds:**
+
+```bash
+# Backend only
+cd backend
+docker build -t givewise-backend .
+docker run -p 8000:8000 givewise-backend
+
+# Frontend only
+cd frontend
+docker build -t givewise-frontend .
+docker run -p 3000:3000 givewise-frontend
+```
+
 ---
 
 ## 🎮 How to Use
