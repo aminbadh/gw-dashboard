@@ -43,7 +43,7 @@ cd frontend && npm run lint
 ## 📁 Project Structure
 
 ```
-gw-dashboard/
+impact-allocation/
 ├── backend/              # FastAPI async backend
 │   ├── main.py          # App initialization, lifespan, routes
 │   ├── models.py        # SQLAlchemy models (Charity, Allocation, AllocationHistory)

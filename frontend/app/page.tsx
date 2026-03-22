@@ -293,7 +293,7 @@ export default function Home() {
                 Built as a technical portfolio project to showcase full-stack development capabilities.
                 {' '}
                 <a
-                  href="https://github.com/aminbadh/gw-dashboard"
+                  href="https://github.com/aminbadh/impact-allocation"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline hover:opacity-80 transition-opacity"
